@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<BaseLayout title={`页面未找到 · ${SITE_TITLE}`} description="你访问的页面不存在或已移动。">
+  <div class="zhixing-container py-24 text-center space-y-5 max-w-xl">
+    <div class="font-mono-tabular text-5xl text-[var(--accent)]">404</div>
+    <h1 class="font-editorial text-3xl sm:text-4xl font-medium">这个页面不存在</h1>
+    <p class="text-sm text-[var(--muted)]">
+      你访问的地址可能已调整，可以回到首页或查看全部 13 个项目。
+    </p>
+    <div class="flex justify-center gap-3 pt-2">
+      <a href="/" class="btn-editorial-primary text-sm">返回首页</a>
+      <a href="/projects/" class="btn-editorial-secondary text-sm">全部项目</a>
+    </div>
+  </div>
+</BaseLayout>

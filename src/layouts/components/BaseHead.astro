@@ -1,0 +1,72 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '@fontsource/newsreader/400.css';
+import '@fontsource/newsreader/500.css';
+import '@fontsource/newsreader/400-italic.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '../../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const { title, description } = Astro.props;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="generator" content={Astro.generator} />
+<link rel="canonical" href={canonicalURL} />
+
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content={Astro.url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+
+<ClientRouter />
+
+<script is:inline>
+  (() => {
+    const resolveTheme = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const q = params.get('theme');
+        if (q === 'light' || q === 'dark') {
+          window.localStorage.setItem('zhixing-theme', q);
+          return q;
+        }
+        const stored = window.localStorage.getItem('zhixing-theme');
+        if (stored === 'light' || stored === 'dark') return stored;
+        return 'light';
+      } catch {
+        return 'light';
+      }
+    };
+
+    const applyThemeToDoc = (doc, theme) => {
+      doc.documentElement.dataset.theme = theme;
+      doc.documentElement.classList.add('js-reveal');
+    };
+
+    applyThemeToDoc(document, resolveTheme());
+
+    if (!window.__zhixingThemeBound) {
+      window.__zhixingThemeBound = true;
+      document.addEventListener('astro:before-swap', (event) => {
+        const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+        applyThemeToDoc(event.newDocument, current);
+      });
+    }
+  })();
+</script>

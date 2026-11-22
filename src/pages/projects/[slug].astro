@@ -1,0 +1,239 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../../consts';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  return projects.map((project, index) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      prevProject: index > 0 ? projects[index - 1] : null,
+      nextProject: index < projects.length - 1 ? projects[index + 1] : null
+    }
+  }));
+}
+
+const { project, prevProject, nextProject } = Astro.props;
+const { Content } = await render(project);
+const d = project.data;
+---
+
+<BaseLayout title={`${d.title} · ${SITE_TITLE}`} description={d.summary}>
+  <article class="zhixing-container py-10 sm:py-14 max-w-3xl">
+    <!-- 面包屑 -->
+    <nav aria-label="页面路径" class="text-xs text-[var(--muted)] mb-7 flex flex-wrap items-center gap-2">
+      <a href="/" class="hover:text-[var(--ink)]">首页</a>
+      <span>/</span>
+      <a href="/projects/" class="hover:text-[var(--ink)]">全部项目</a>
+      <span>/</span>
+      <span class="text-[var(--ink)]">{d.title}</span>
+    </nav>
+
+    <!-- 头部元信息 -->
+    <header class="space-y-4 pb-8 border-b border-[var(--border)]">
+      <div class="flex flex-wrap items-center gap-2.5 text-xs text-[var(--muted)]">
+        <span class="font-mono-tabular text-[var(--accent)] font-medium">
+          #{String(d.order).padStart(2, '0')}
+        </span>
+        <span>·</span>
+        <span>{d.category}</span>
+        <span>·</span>
+        <span>{d.context}</span>
+        <span>·</span>
+        <span class="font-mono-tabular">{d.period}</span>
+      </div>
+
+      {
+        d.award && (
+          <div>
+            <span class="award-pill">★ {d.award}</span>
+          </div>
+        )
+      }
+
+      <h1 class="font-editorial text-3xl sm:text-5xl font-medium leading-[1.16] tracking-tight">
+        {d.title}
+      </h1>
+      <p class="text-base sm:text-lg text-[var(--accent)] leading-relaxed">{d.subtitle}</p>
+
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[var(--border)] text-xs">
+        <div>
+          <dt class="text-[var(--muted)] mb-1">本人职责</dt>
+          <dd class="font-medium text-[var(--ink)]">{d.role}</dd>
+        </div>
+        <div>
+          <dt class="text-[var(--muted)] mb-1">当前状态</dt>
+          <dd class="font-medium text-[var(--ink)]">{d.status}</dd>
+        </div>
+      </dl>
+
+      <div class="flex flex-wrap items-center gap-2 pt-1">
+        {d.stack.map((tech) => <span class="tag-pill">{tech}</span>)}
+      </div>
+
+      {
+        (d.demoUrl || d.repoUrl) && (
+          <div class="flex flex-wrap items-center gap-4 pt-2">
+            {d.demoUrl && (
+              <a href={d.demoUrl} target="_blank" rel="noopener noreferrer" class="btn-editorial-primary text-xs">
+                打开在线演示 ↗
+              </a>
+            )}
+            {d.repoUrl && (
+              <a href={d.repoUrl} target="_blank" rel="noopener noreferrer" class="btn-editorial-secondary text-xs">
+                查看 GitHub 源码 ↗
+              </a>
+            )}
+          </div>
+        )
+      }
+    </header>
+
+    <!-- 验证边界醒目说明 -->
+    <section class="verify-callout my-8 text-sm leading-relaxed">
+      <div class="verify-label mb-1">已验证范围与客观边界</div>
+      <p class="text-[var(--ink)]">{d.verification}</p>
+    </section>
+
+    <!-- 项目实图（支持点击打开原生 Lightbox 大图） -->
+    {
+      d.coverImage && (
+        <figure class="my-8">
+          <button
+            type="button"
+            class="media-stage block w-full text-left cursor-zoom-in group"
+            data-lightbox-trigger
+            data-src={d.coverImage}
+            data-caption={d.coverAlt || d.title}
+            aria-label={`放大查看 ${d.title} 实图`}
+          >
+            <img
+              src={d.coverImage}
+              alt={d.coverAlt || d.title}
+              class="w-full h-auto block"
+            />
+          </button>
+          <figcaption class="mt-2.5 flex items-baseline justify-between gap-4 text-xs text-[var(--muted)]">
+            <span>{d.coverAlt}</span>
+            <span class="whitespace-nowrap text-[var(--accent)]">点击看大图</span>
+          </figcaption>
+        </figure>
+      )
+    }
+
+    <!-- 详情正文 -->
+    <div class="zhixing-prose my-8">
+      <Content />
+    </div>
+
+    <!-- 补充图集 -->
+    {
+      d.gallery && d.gallery.length > 0 && (
+        <section class="my-10 space-y-5">
+          <h2 class="font-editorial text-xl font-medium border-b border-[var(--border)] pb-2">补充实测界面</h2>
+          {d.gallery.map((item) => (
+            <figure>
+              <button
+                type="button"
+                class="media-stage block w-full text-left cursor-zoom-in"
+                data-lightbox-trigger
+                data-src={item.src}
+                data-caption={item.caption}
+                aria-label={`放大查看 ${item.caption}`}
+              >
+                <img src={item.src} alt={item.caption} class="w-full h-auto block" loading="lazy" />
+              </button>
+              <figcaption class="mt-2.5 flex items-baseline justify-between gap-4 text-xs text-[var(--muted)]">
+                <span>{item.caption}</span>
+                <span class="whitespace-nowrap text-[var(--accent)]">点击看大图</span>
+              </figcaption>
+            </figure>
+          ))}
+        </section>
+      )
+    }
+
+    <!-- 上下篇细线导航 -->
+    <nav
+      aria-label="上下项目导航"
+      class="mt-14 pt-6 border-t border-[var(--border)] grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm"
+    >
+      <div>
+        {
+          prevProject && (
+            <a href={`/projects/${prevProject.id}/`} class="block space-y-1 group">
+              <div class="text-xs text-[var(--muted)]">← 上一个项目</div>
+              <div class="font-medium text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
+                {prevProject.data.title}
+              </div>
+            </a>
+          )
+        }
+      </div>
+      <div class="sm:text-right">
+        {
+          nextProject && (
+            <a href={`/projects/${nextProject.id}/`} class="block space-y-1 group">
+              <div class="text-xs text-[var(--muted)]">下一个项目 →</div>
+              <div class="font-medium text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
+                {nextProject.data.title}
+              </div>
+            </a>
+          )
+        }
+      </div>
+    </nav>
+  </article>
+
+  <!-- 原生 Dialog 大图查看器 -->
+  <dialog class="zhixing-lightbox" data-lightbox aria-label="项目图片放大预览">
+    <div class="flex items-center justify-between gap-4 px-4 py-3 border-b border-[var(--border)] text-xs">
+      <span class="text-[var(--muted)] truncate" data-lightbox-caption></span>
+      <button
+        type="button"
+        class="px-2.5 py-1 rounded-full border border-[var(--border)] text-[var(--ink)] hover:bg-[var(--surface)] cursor-pointer"
+        data-lightbox-close
+      >
+        关闭 (Esc)
+      </button>
+    </div>
+    <div class="p-3 bg-[var(--bg)] flex items-center justify-center">
+      <img src="" alt="" data-lightbox-img class="max-h-[78vh] w-auto object-contain rounded-lg" />
+    </div>
+  </dialog>
+</BaseLayout>
+
+<script>
+  function initProjectLightbox() {
+    const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+    if (!dialog || dialog.dataset.bound === 'true') return;
+    dialog.dataset.bound = 'true';
+
+    const imgEl = dialog.querySelector<HTMLImageElement>('[data-lightbox-img]');
+    const captionEl = dialog.querySelector<HTMLElement>('[data-lightbox-caption]');
+    const closeBtn = dialog.querySelector<HTMLButtonElement>('[data-lightbox-close]');
+
+    document.querySelectorAll<HTMLButtonElement>('[data-lightbox-trigger]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const src = trigger.dataset.src || '';
+        const caption = trigger.dataset.caption || '';
+        if (imgEl) {
+          imgEl.src = src;
+          imgEl.alt = caption;
+        }
+        if (captionEl) captionEl.textContent = caption;
+        dialog.showModal();
+      });
+    });
+
+    closeBtn?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+
+  initProjectLightbox();
+  document.addEventListener('astro:page-load', initProjectLightbox);
+</script>

@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { AUTHOR, HONORS, MILESTONES, SITE_TITLE } from '../consts';
+---
+
+<BaseLayout
+  title={`关于 · ${SITE_TITLE}`}
+  description="潘元昊（广东技术师范大学 2026 级智能科学与技术）的个人背景、能力方向与公开联系方式。"
+>
+  <div class="hero-ambient pt-10 pb-10">
+    <div class="zhixing-container max-w-4xl">
+      <nav aria-label="页面路径" class="text-xs text-[var(--muted)] mb-4 flex items-center gap-2">
+        <a href="/" class="hover:text-[var(--ink)]">首页</a>
+        <span>/</span>
+        <span class="text-[var(--ink)]">关于</span>
+      </nav>
+      <h1 class="font-editorial text-3xl sm:text-5xl font-medium tracking-tight">关于潘元昊</h1>
+      <p class="text-base sm:text-lg text-[var(--ink-soft)] mt-3 leading-relaxed max-w-2xl">
+        {AUTHOR.school} · 围绕「嵌入式硬件控制 + 边缘视觉 AI + 前线交付（FDE）」做长期工程积累。
+      </p>
+    </div>
+  </div>
+
+  <div class="zhixing-container py-12 max-w-4xl space-y-12">
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10 border-b border-[var(--border)]">
+      <div class="space-y-2.5">
+        <div class="font-mono-tabular text-xs text-[var(--accent)]">TECHNICAL DIRECTION</div>
+        <h2 class="text-2xl font-medium">技术主线</h2>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">
+          把软件工程与 C/C++、Python 根基做扎实，同时靠近真实硬件和现场约束：关注嵌入式实时串口闭环、边缘模型防错门控、端到端交互界面以及低成本工程落地。
+        </p>
+      </div>
+      <div class="space-y-2.5">
+        <div class="font-mono-tabular text-xs text-[var(--accent)]">RECORD STANDARD</div>
+        <h2 class="text-2xl font-medium">记录与边界原则</h2>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">
+          知行空间仅公开真实做过的项目、开源工具与已核实成果；每项均明确区分“示例演示 / 本地验证 / 实车真机验收”，不把开发阶段包装成商业成品。
+        </p>
+      </div>
+    </section>
+
+    <section class="space-y-6 pb-10 border-b border-[var(--border)]">
+      <h2 class="text-2xl font-medium">已核实荣誉与推进记录</h2>
+      {
+        HONORS.map((h) => (
+          <div class="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-1.5">
+              <span class="award-pill">★ {h.title}</span>
+              <div class="text-sm text-[var(--muted)]">
+                关联作品：
+                <a href={`/projects/${h.projectSlug}/`} class="editorial-link text-sm">
+                  {h.projectTitle}
+                </a>
+              </div>
+              <p class="text-xs text-[var(--muted)]">{h.note}</p>
+            </div>
+            <span class="font-mono-tabular text-xs text-[var(--muted)]">{h.date}</span>
+          </div>
+        ))
+      }
+
+      <ol class="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+        {
+          MILESTONES.map((m) => (
+            <li class="py-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 text-xs">
+              <div class="space-y-0.5">
+                <span class="font-mono-tabular text-[var(--accent)] mr-3">{m.period}</span>
+                <a href={`/projects/${m.projectSlug}/`} class="text-sm font-medium text-[var(--ink)] hover:text-[var(--accent)]">
+                  {m.title}
+                </a>
+              </div>
+              <span class="tag-pill text-[11px] self-start sm:self-auto">{m.status}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-2xl font-medium">公开联系与仓库</h2>
+      <div class="text-sm text-[var(--muted)] space-y-2">
+        <div>
+          GitHub：
+          <a href={AUTHOR.githubUrl} target="_blank" rel="noopener noreferrer" class="editorial-link text-sm">
+            {AUTHOR.githubUrl} ↗
+          </a>
+        </div>
+        <div>{AUTHOR.emailNote}</div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

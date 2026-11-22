@@ -1,0 +1,49 @@
+---
+import { AUTHOR } from '../../consts';
+---
+
+<footer class="border-t border-[var(--border)] mt-20 py-10">
+  <div class="zhixing-container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[var(--muted)]">
+    <div class="space-y-1">
+      <div class="font-editorial text-base text-[var(--ink)]">
+        {AUTHOR.brand} · {AUTHOR.name}
+      </div>
+      <div>独立静态工程构建 · 预留自有域名部署 · 本地开发版</div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-5">
+      <a
+        href={AUTHOR.githubUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-[var(--ink)] transition-colors"
+      >
+        GitHub ({AUTHOR.githubHandle}) ↗
+      </a>
+      <a href="/projects/" class="hover:text-[var(--ink)] transition-colors">全部项目</a>
+      <a href="/about/" class="hover:text-[var(--ink)] transition-colors">关于</a>
+      <button
+        type="button"
+        data-back-to-top
+        class="hover:text-[var(--ink)] transition-colors cursor-pointer"
+      >
+        回到顶部 ↑
+      </button>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function initBackToTop() {
+    const btn = document.querySelector<HTMLButtonElement>('[data-back-to-top]');
+    if (!btn || btn.dataset.bound === 'true') return;
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', () => {
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+    });
+  }
+
+  initBackToTop();
+  document.addEventListener('astro:page-load', initBackToTop);
+</script>

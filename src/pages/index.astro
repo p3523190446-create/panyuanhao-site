@@ -1,0 +1,301 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectArchive from '../components/ProjectArchive.astro';
+import { AUTHOR, HONORS, MILESTONES, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const allProjects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const featuredProjects = allProjects.filter((p) => p.data.featured);
+---
+
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  <!-- 1. 全幅无边框社论头屏：暖纸质感 + 沉稳排版 + 克制入场（绝不放单一子项目图或独立动效小框） -->
+  <section class="hero-ambient pt-14 pb-14 sm:pt-24 sm:pb-20">
+    <div class="zhixing-container">
+      <div class="reveal is-visible inline-flex items-center gap-2.5 text-xs tracking-[0.12em] text-[var(--muted)] mb-6">
+        <span class="w-2 h-2 rounded-full bg-[var(--accent)]" aria-hidden="true"></span>
+        <span>{AUTHOR.school}</span>
+      </div>
+
+      <h1 class="reveal is-visible font-editorial text-4xl sm:text-6xl lg:text-[68px] leading-[1.12] tracking-tight max-w-4xl">
+        把想法，落在真实现场。
+      </h1>
+
+      <div class="mt-10 sm:mt-14 pt-8 border-t border-[var(--border)] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div class="reveal is-visible lg:col-span-7 space-y-6">
+          <p class="text-base sm:text-lg text-[var(--ink-soft)] leading-relaxed max-w-2xl">
+            我是<strong class="text-[var(--ink)] font-semibold">潘元昊</strong>，关注嵌入式控制、边缘视觉防错与贴近现场的工程交付。这里按真实职责、实物状态与可核验边界，记录大一以来做过的 {allProjects.length} 项软硬件系统、开源工具与竞赛作品。
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <a href="#featured" class="btn-editorial-primary">
+              浏览精选代表作 ↓
+            </a>
+            <a href="#projects" class="btn-editorial-secondary">
+              全部 {allProjects.length} 项项目总目
+            </a>
+            <a
+              href={AUTHOR.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="editorial-link text-sm ml-1"
+            >
+              GitHub ↗
+            </a>
+          </div>
+        </div>
+
+        <dl class="reveal is-visible lg:col-span-5 divide-y divide-[var(--border)] border-y border-[var(--border)] text-sm">
+          <div class="py-3 flex items-baseline justify-between gap-4">
+            <dt class="font-mono-tabular text-xs text-[var(--muted)]">项目建档</dt>
+            <dd class="font-medium text-[var(--ink)] text-right">{allProjects.length} 项软硬件与开源实践</dd>
+          </div>
+          <div class="py-3 flex items-baseline justify-between gap-4">
+            <dt class="font-mono-tabular text-xs text-[var(--muted)]">已核实荣誉</dt>
+            <dd class="font-medium text-[var(--ink)] text-right">挑战杯院赛一等奖（帧序智护）</dd>
+          </div>
+          <div class="py-3 flex items-baseline justify-between gap-4">
+            <dt class="font-mono-tabular text-xs text-[var(--muted)]">核心主线</dt>
+            <dd class="font-medium text-[var(--ink)] text-right">硬件全栈 · 边缘 AI · 前线交付</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 精选代表作：12 栏交替社论长卷展陈（图归项目自身，绝不跨项贴奖） -->
+  <section id="featured" class="py-16 sm:py-20 border-b border-[var(--border)]">
+    <div class="zhixing-container">
+      <div class="reveal flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+        <div>
+          <p class="font-mono-tabular text-xs tracking-[0.18em] uppercase text-[var(--accent)] mb-2">
+            01 / SELECTED WORKS
+          </p>
+          <h2 class="text-3xl sm:text-4xl font-medium tracking-tight">精选代表作</h2>
+          <p class="text-sm text-[var(--muted)] mt-2">
+            四项最具代表性的真实交付与联调项目，每一项均写明本人职责与验证边界。
+          </p>
+        </div>
+        <a href="/projects/" class="editorial-link text-sm">
+          进入独立项目索引 →
+        </a>
+      </div>
+
+      <div class="divide-y divide-[var(--border)]">
+        {
+          featuredProjects.map((project, idx) => {
+            const d = project.data;
+            const mediaRight = idx % 2 === 1;
+            return (
+              <article class="reveal py-12 first:pt-2 last:pb-2 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                {d.coverImage && (
+                  <a
+                    href={`/projects/${project.id}/`}
+                    class:list={[
+                      'media-stage block lg:col-span-7 aspect-[16/10]',
+                      mediaRight ? 'lg:order-2' : 'lg:order-1'
+                    ]}
+                  >
+                    <img
+                      src={d.coverImage}
+                      alt={d.coverAlt || d.title}
+                      loading={idx < 2 ? 'eager' : 'lazy'}
+                      class="w-full h-full object-cover"
+                    />
+                  </a>
+                )}
+
+                <div
+                  class:list={[
+                    'lg:col-span-5 space-y-4',
+                    mediaRight ? 'lg:order-1' : 'lg:order-2'
+                  ]}
+                >
+                  <div class="flex flex-wrap items-center gap-2.5 text-xs text-[var(--muted)]">
+                    <span class="font-mono-tabular text-[var(--accent)] font-medium">
+                      0{idx + 1}
+                    </span>
+                    <span>·</span>
+                    <span>{d.category}</span>
+                    <span>·</span>
+                    <span class="font-mono-tabular">{d.period}</span>
+                  </div>
+
+                  {d.award && (
+                    <div>
+                      <span class="award-pill">★ {d.award}</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <h3 class="text-2xl sm:text-3xl font-medium leading-snug tracking-tight">
+                      <a href={`/projects/${project.id}/`} class="hover:text-[var(--accent)] transition-colors">
+                        {d.title}
+                      </a>
+                    </h3>
+                    <p class="text-sm text-[var(--accent)] mt-1.5 leading-relaxed">{d.subtitle}</p>
+                  </div>
+
+                  <p class="text-sm text-[var(--ink-soft)] leading-relaxed">{d.summary}</p>
+
+                  <div class="verify-note text-xs leading-relaxed">
+                    <span class="verify-label block mb-0.5">已验证范围与边界</span>
+                    <span class="text-[var(--muted)]">{d.verification}</span>
+                  </div>
+
+                  <div class="text-xs text-[var(--muted)]">
+                    职责：<strong class="text-[var(--ink)] font-medium">{d.role}</strong>
+                  </div>
+
+                  <div class="flex flex-wrap gap-1.5">
+                    {d.stack.slice(0, 4).map((tech) => (
+                      <span class="tag-pill text-[11px]">{tech}</span>
+                    ))}
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-5 pt-2">
+                    <a href={`/projects/${project.id}/`} class="editorial-link text-sm">
+                      阅读完整记录 →
+                    </a>
+                    {d.demoUrl && (
+                      <a
+                        href={d.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-sm text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+                      >
+                        在线体验 ↗
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 全部 13 个项目交互台账 -->
+  <div id="projects" class="zhixing-container border-b border-[var(--border)]">
+    <ProjectArchive projects={allProjects} />
+  </div>
+
+  <!-- 4. 荣誉与真实成长轨迹（Sticky 章节栏） -->
+  <section id="honors" class="py-16 sm:py-20 border-b border-[var(--border)]">
+    <div class="zhixing-container grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+      <div class="reveal lg:col-span-4 lg:sticky lg:top-24 space-y-4">
+        <p class="font-mono-tabular text-xs tracking-[0.18em] uppercase text-[var(--accent)]">
+          03 / HONORS & TIMELINE
+        </p>
+        <h2 class="text-3xl font-medium tracking-tight">荣誉与真实轨迹</h2>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">
+          只把已有明确结果的奖项记为获奖；其余仍在联调、备赛或等候评审的项目如实标出当前节点。
+        </p>
+
+        {
+          HONORS.map((honor) => (
+            <div class="mt-4 p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="award-pill">★ 已核实奖项</span>
+                <span class="font-mono-tabular text-xs text-[var(--muted)]">{honor.date}</span>
+              </div>
+              <h3 class="text-lg font-medium">{honor.title}</h3>
+              <p class="text-xs text-[var(--muted)]">
+                关联作品：
+                <a href={`/projects/${honor.projectSlug}/`} class="editorial-link text-xs">
+                  {honor.projectTitle}
+                </a>
+              </p>
+              <p class="text-xs text-[var(--muted)] leading-relaxed">{honor.note}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="reveal lg:col-span-8">
+        <ol class="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+          {
+            MILESTONES.map((m) => (
+              <li class="py-5 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
+                <span class="font-mono-tabular text-xs text-[var(--accent)] whitespace-nowrap pt-1 sm:w-28 flex-shrink-0">
+                  {m.period}
+                </span>
+                <div class="space-y-1.5 flex-1">
+                  <div class="flex flex-wrap items-center gap-2.5">
+                    <a
+                      href={`/projects/${m.projectSlug}/`}
+                      class="text-base font-medium hover:text-[var(--accent)] transition-colors"
+                    >
+                      {m.title}
+                    </a>
+                    <span class="tag-pill text-[11px]">{m.status}</span>
+                  </div>
+                  <p class="text-xs sm:text-sm text-[var(--muted)] leading-relaxed">{m.detail}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 关于我与做事原则 -->
+  <section id="about" class="py-16 sm:py-20">
+    <div class="zhixing-container grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+      <div class="reveal lg:col-span-4 lg:sticky lg:top-24 space-y-4">
+        <p class="font-mono-tabular text-xs tracking-[0.18em] uppercase text-[var(--accent)]">
+          04 / APPROACH
+        </p>
+        <h2 class="text-3xl font-medium tracking-tight">关于我与原则</h2>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">
+          把 C/C++、Python 与嵌入式系统基础打牢，同时尽量让每个项目都能面对真实场景与普通用户跑通闭环。
+        </p>
+        <div class="flex flex-wrap items-center gap-4 pt-1">
+          <a href="/about/" class="editorial-link text-sm">完整个人介绍 →</a>
+          <a
+            href={AUTHOR.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+          >
+            GitHub ↗
+          </a>
+        </div>
+        <p class="text-xs text-[var(--muted)]">{AUTHOR.emailNote}</p>
+      </div>
+
+      <div class="reveal lg:col-span-8 divide-y divide-[var(--border)] border-y border-[var(--border)]">
+        <div class="py-6 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-6 items-baseline">
+          <div class="sm:col-span-4 font-mono-tabular text-xs text-[var(--accent)]">01 / 先拆真场景</div>
+          <div class="sm:col-span-8 space-y-1.5">
+            <h3 class="text-lg font-medium">先看谁在用，再决定技术怎么长</h3>
+            <p class="text-sm text-[var(--muted)] leading-relaxed">
+              不把底层串口指令或传感器读数直接堆成交互界面，先弄清楚现场痛点、操作门槛与真正可能出事故的环节。
+            </p>
+          </div>
+        </div>
+        <div class="py-6 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-6 items-baseline">
+          <div class="sm:col-span-4 font-mono-tabular text-xs text-[var(--accent)]">02 / 真机与人验收</div>
+          <div class="sm:col-span-8 space-y-1.5">
+            <h3 class="text-lg font-medium">严格区分示例演示与真实验收</h3>
+            <p class="text-sm text-[var(--muted)] leading-relaxed">
+              录像能跑不等于工业相机现场稳定，桌面模拟器能通不等于真机流畅；每项成果都留证据并写明尚未覆盖的边界。
+            </p>
+          </div>
+        </div>
+        <div class="py-6 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-6 items-baseline">
+          <div class="sm:col-span-4 font-mono-tabular text-xs text-[var(--accent)]">03 / 底座可迁移</div>
+          <div class="sm:col-span-8 space-y-1.5">
+            <h3 class="text-lg font-medium">把时间沉淀成可复用的资产与口碑</h3>
+            <p class="text-sm text-[var(--muted)] leading-relaxed">
+              智能车双模网关、视觉时效保护思维与防争议交互能力跨多个项目反复打磨迭代，不每次重头造轮子。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,107 @@
+---
+import { AUTHOR } from '../../consts';
+
+const pathname = Astro.url.pathname;
+const navItems = [
+  { href: '/#featured', label: '精选代表作', match: pathname === '/' },
+  { href: '/projects/', label: '全部项目', match: pathname.startsWith('/projects') },
+  { href: '/#honors', label: '荣誉与轨迹', match: false },
+  { href: '/about/', label: '关于', match: pathname.startsWith('/about') }
+];
+---
+
+<header class="site-header">
+  <div class="zhixing-container">
+    <div class="h-14 sm:h-16 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <span class="site-seal" aria-hidden="true">知</span>
+        <span class="font-editorial text-lg tracking-tight text-[var(--ink)]">{AUTHOR.brand}</span>
+        <span class="hidden sm:inline text-xs text-[var(--muted)] pl-1 border-l border-[var(--border)]">
+          {AUTHOR.name}
+        </span>
+      </a>
+
+      <div class="flex items-center gap-6">
+        <nav aria-label="主导航" class="hidden sm:flex items-center gap-6 text-[13.5px]">
+          {
+            navItems.map((item) => (
+              <a
+                href={item.href}
+                class:list={[
+                  'whitespace-nowrap py-1 transition-colors',
+                  item.match ? 'text-[var(--ink)] font-medium' : 'text-[var(--muted)] hover:text-[var(--ink)]'
+                ]}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+
+        <button
+          type="button"
+          class="theme-toggle-btn"
+          data-theme-toggle
+          aria-label="切换浅色或深色界面"
+          aria-pressed="false"
+        >
+          <span data-theme-icon aria-hidden="true">☾</span>
+          <span data-theme-label>墨夜</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 窄屏导航栏 -->
+    <nav
+      aria-label="移动端主导航"
+      class="sm:hidden flex items-center justify-between gap-3 py-2 border-t border-[var(--border)] text-[13px]"
+    >
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              'whitespace-nowrap py-1',
+              item.match ? 'text-[var(--ink)] font-medium' : 'text-[var(--muted)]'
+            ]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>
+
+<script>
+  function syncThemeButton() {
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    const isDark = theme === 'dark';
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(isDark));
+      const icon = btn.querySelector<HTMLElement>('[data-theme-icon]');
+      const label = btn.querySelector<HTMLElement>('[data-theme-label]');
+      if (icon) icon.textContent = isDark ? '☀' : '☾';
+      if (label) label.textContent = isDark ? '暖纸' : '墨夜';
+    });
+  }
+
+  function initHeaderThemeToggle() {
+    syncThemeButton();
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+      if (btn.dataset.bound === 'true') return;
+      btn.dataset.bound = 'true';
+      btn.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try {
+          window.localStorage.setItem('zhixing-theme', next);
+        } catch {}
+        syncThemeButton();
+      });
+    });
+  }
+
+  initHeaderThemeToggle();
+  document.addEventListener('astro:page-load', initHeaderThemeToggle);
+</script>

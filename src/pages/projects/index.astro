@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectArchive from '../../components/ProjectArchive.astro';
+import { SITE_TITLE } from '../../consts';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title={`全部项目（${projects.length}） · ${SITE_TITLE}`}
+  description="潘元昊大一以来完成的 13 项软硬件、边缘 AI、Web 产品、测试实践与开源工具档案。"
+>
+  <div class="hero-ambient pt-10 pb-8">
+    <div class="zhixing-container">
+      <nav aria-label="页面路径" class="text-xs text-[var(--muted)] mb-4 flex items-center gap-2">
+        <a href="/" class="hover:text-[var(--ink)]">首页</a>
+        <span>/</span>
+        <span class="text-[var(--ink)]">全部项目</span>
+      </nav>
+      <h1 class="font-editorial text-3xl sm:text-5xl font-medium tracking-tight">
+        全部项目档案（共 {projects.length} 项）
+      </h1>
+      <p class="text-sm sm:text-base text-[var(--muted)] mt-3 max-w-2xl leading-relaxed">
+        完整汇总大一以来做过的公开软硬件工程、开源工具与竞赛实践；按类别或关键词即可筛选，点击任意一行可直接展开核查验证边界。
+      </p>
+    </div>
+  </div>
+
+  <div class="zhixing-container">
+    <ProjectArchive projects={projects} showHeading={false} />
+  </div>
+</BaseLayout>

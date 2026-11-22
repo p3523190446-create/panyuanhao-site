@@ -1,0 +1,327 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { PROJECT_CATEGORIES } from '../content.config';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+  showHeading?: boolean;
+}
+
+const { projects, showHeading = true } = Astro.props;
+
+const counts = Object.fromEntries(
+  PROJECT_CATEGORIES.map((cat) => [cat, projects.filter((p) => p.data.category === cat).length])
+);
+---
+
+<section class="py-16" data-archive-root>
+  {
+    showHeading && (
+      <div class="reveal flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <p class="font-mono-tabular text-xs tracking-[0.18em] uppercase text-[var(--accent)] mb-2">
+            02 / COMPLETE LEDGER · {projects.length} PROJECTS
+          </p>
+          <h2 class="text-3xl sm:text-4xl font-medium tracking-tight">全部做过的项目总目</h2>
+          <p class="text-sm text-[var(--muted)] mt-2 max-w-2xl">
+            按序号整理大一以来的全部 {projects.length} 项软硬件、边缘 AI、产品与开源实践；点击任意一行可展开摘要与验证边界，或直接进入详情页。
+          </p>
+        </div>
+        <div class="font-mono-tabular text-xs text-[var(--muted)]" data-archive-count aria-live="polite">
+          {projects.length} / {projects.length} 项
+        </div>
+      </div>
+    )
+  }
+
+  <!-- 分类与极简下划线搜索栏 -->
+  <div class="reveal flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-[var(--border)]">
+    <div class="flex flex-wrap gap-2" role="group" aria-label="按项目类别筛选">
+      <button
+        type="button"
+        class="filter-pill px-3.5 py-1.5 rounded-full text-xs border transition-colors cursor-pointer bg-[var(--ink)] text-[var(--bg)] border-transparent font-medium"
+        data-filter-cat="all"
+        aria-pressed="true"
+      >
+        全部 {projects.length}
+      </button>
+      {
+        PROJECT_CATEGORIES.map((cat) => (
+          <button
+            type="button"
+            class="filter-pill px-3.5 py-1.5 rounded-full text-xs border border-[var(--border)] bg-transparent text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--border-strong)] transition-colors cursor-pointer"
+            data-filter-cat={cat}
+            aria-pressed="false"
+          >
+            {cat} {counts[cat]}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="relative w-full lg:w-72 flex-shrink-0">
+      <label class="sr-only" for="archive-search-input">搜索项目名称或技术栈</label>
+      <input
+        id="archive-search-input"
+        type="search"
+        data-archive-search
+        placeholder="按 / 搜索项目、赛事或技术栈…"
+        class="w-full px-1 py-2 text-sm bg-transparent text-[var(--ink)] placeholder:text-[var(--muted)] border-0 border-b border-[var(--border-strong)] focus:border-[var(--accent)] focus:outline-none transition-colors"
+      />
+    </div>
+  </div>
+
+  <!-- 13 项水平细线项目台账（支持流畅手风琴展开预览 + 详情跳转） -->
+  <div class="divide-y divide-[var(--border)] border-b border-[var(--border)]" data-archive-list>
+    {
+      projects.map((project) => {
+        const d = project.data;
+        const searchIndex = [d.title, d.subtitle, d.category, d.context, d.role, d.status, d.summary, ...d.stack]
+          .join(' ')
+          .toLowerCase();
+        return (
+          <article
+            class="ledger-item group"
+            data-project-card
+            data-open="false"
+            data-category={d.category}
+            data-search={searchIndex}
+          >
+            <div class="py-5 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6">
+              <button
+                type="button"
+                class="flex-1 text-left flex items-start gap-4 sm:gap-5 cursor-pointer group/btn"
+                data-ledger-toggle
+                aria-expanded="false"
+              >
+                <span class="font-mono-tabular text-xs text-[var(--accent)] pt-1.5 flex-shrink-0 w-7">
+                  {String(d.order).padStart(2, '0')}
+                </span>
+                <div class="space-y-1 flex-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2.5">
+                    <h3 class="text-lg sm:text-xl font-medium tracking-tight group-hover/btn:text-[var(--accent)] transition-colors">
+                      {d.title}
+                    </h3>
+                    {d.award && <span class="award-pill">★ {d.award}</span>}
+                  </div>
+                  <p class="text-xs sm:text-sm text-[var(--muted)] leading-relaxed">{d.subtitle}</p>
+                </div>
+              </button>
+
+              <div class="flex items-center justify-between md:justify-end gap-4 sm:gap-6 pl-11 md:pl-0 flex-shrink-0 text-xs">
+                <div class="flex flex-wrap items-center gap-2.5 text-[var(--muted)]">
+                  <span class="tag-pill">{d.category}</span>
+                  <span class="hidden lg:inline">{d.status}</span>
+                  <span class="font-mono-tabular">{d.period}</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <a
+                    href={`/projects/${project.id}/`}
+                    class="editorial-link text-xs whitespace-nowrap"
+                  >
+                    详情 ↗
+                  </a>
+                  <button
+                    type="button"
+                    class="w-7 h-7 rounded-full border border-[var(--border)] flex items-center justify-center text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--border-strong)] transition-colors cursor-pointer"
+                    data-ledger-toggle
+                    aria-expanded="false"
+                    aria-label={`展开或收起 ${d.title} 简介`}
+                  >
+                    <span class="ledger-chevron text-sm leading-none">+</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 展开态抽屉：真实缩略图（若有）、职责、验证边界与外链 -->
+            <div class="ledger-drawer">
+              <div class="ledger-drawer-inner">
+                <div class="pb-6 pl-11 pr-2 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {d.coverImage && (
+                    <a
+                      href={`/projects/${project.id}/`}
+                      class="lg:col-span-4 media-stage block aspect-[16/10]"
+                    >
+                      <img
+                        src={d.coverImage}
+                        alt={d.coverAlt || d.title}
+                        loading="lazy"
+                        class="w-full h-full object-cover"
+                      />
+                    </a>
+                  )}
+
+                  <div class:list={[d.coverImage ? 'lg:col-span-8' : 'lg:col-span-12', 'space-y-3.5']}>
+                    <p class="text-sm text-[var(--ink-soft)] leading-relaxed">{d.summary}</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[var(--muted)]">
+                      <div>
+                        所属场景：<strong class="text-[var(--ink)] font-medium">{d.context}</strong>
+                      </div>
+                      <div>
+                        本人职责：<strong class="text-[var(--ink)] font-medium">{d.role}</strong>
+                      </div>
+                    </div>
+
+                    <div class="verify-note text-xs leading-relaxed">
+                      <span class="verify-label mr-2">验证边界</span>
+                      <span class="text-[var(--muted)]">{d.verification}</span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                      <div class="flex flex-wrap gap-1.5">
+                        {d.stack.map((tech) => (
+                          <span class="tag-pill text-[11px]">{tech}</span>
+                        ))}
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-4 text-xs">
+                        <a href={`/projects/${project.id}/`} class="editorial-link">
+                          进入完整详情 →
+                        </a>
+                        {d.demoUrl && (
+                          <a
+                            href={d.demoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+                          >
+                            在线演示 ↗
+                          </a>
+                        )}
+                        {d.repoUrl && (
+                          <a
+                            href={d.repoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+                          >
+                            GitHub 源码 ↗
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  <!-- 空状态 -->
+  <div class="hidden py-12 text-center border-b border-[var(--border)]" data-archive-empty>
+    <p class="text-sm text-[var(--muted)] mb-4">没有找到匹配的项目记录，可以换个关键词或重置筛选。</p>
+    <button type="button" class="btn-editorial-secondary text-xs cursor-pointer" data-archive-reset>
+      重置筛选条件
+    </button>
+  </div>
+</section>
+
+<script>
+  function initProjectLedger() {
+    document.querySelectorAll<HTMLElement>('[data-archive-root]').forEach((root) => {
+      if (root.dataset.bound === 'true') return;
+      root.dataset.bound = 'true';
+
+      const pills = root.querySelectorAll<HTMLButtonElement>('[data-filter-cat]');
+      const input = root.querySelector<HTMLInputElement>('[data-archive-search]');
+      const items = root.querySelectorAll<HTMLElement>('[data-project-card]');
+      const countEl = root.querySelector<HTMLElement>('[data-archive-count]');
+      const emptyEl = root.querySelector<HTMLElement>('[data-archive-empty]');
+      const resetBtn = root.querySelector<HTMLButtonElement>('[data-archive-reset]');
+
+      let activeCategory = 'all';
+      let query = '';
+
+      function applyFilter() {
+        let visible = 0;
+        const q = query.trim().toLowerCase();
+
+        items.forEach((item) => {
+          const cat = item.dataset.category || '';
+          const searchText = item.dataset.search || '';
+          const matchCat = activeCategory === 'all' || cat === activeCategory;
+          const matchQuery = !q || searchText.includes(q);
+          const show = matchCat && matchQuery;
+          item.hidden = !show;
+          item.style.display = show ? '' : 'none';
+          if (show) visible += 1;
+        });
+
+        if (countEl) {
+          countEl.textContent = `${visible} / ${items.length} 项`;
+        }
+        if (emptyEl) {
+          emptyEl.classList.toggle('hidden', visible > 0);
+        }
+
+        pills.forEach((btn) => {
+          const isActive = (btn.dataset.filterCat || 'all') === activeCategory;
+          btn.setAttribute('aria-pressed', String(isActive));
+          btn.classList.toggle('bg-[var(--ink)]', isActive);
+          btn.classList.toggle('text-[var(--bg)]', isActive);
+          btn.classList.toggle('border-transparent', isActive);
+          btn.classList.toggle('font-medium', isActive);
+          btn.classList.toggle('bg-transparent', !isActive);
+          btn.classList.toggle('text-[var(--muted)]', !isActive);
+          btn.classList.toggle('border-[var(--border)]', !isActive);
+        });
+      }
+
+      pills.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeCategory = btn.dataset.filterCat || 'all';
+          applyFilter();
+        });
+      });
+
+      input?.addEventListener('input', () => {
+        query = input.value;
+        applyFilter();
+      });
+
+      resetBtn?.addEventListener('click', () => {
+        activeCategory = 'all';
+        query = '';
+        if (input) input.value = '';
+        applyFilter();
+      });
+
+      items.forEach((item) => {
+        const toggles = item.querySelectorAll<HTMLButtonElement>('[data-ledger-toggle]');
+        toggles.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const next = item.dataset.open !== 'true';
+            item.dataset.open = String(next);
+            toggles.forEach((t) => t.setAttribute('aria-expanded', String(next)));
+          });
+        });
+      });
+    });
+
+    if (!(window as any).__zhixingSlashBound) {
+      (window as any).__zhixingSlashBound = true;
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+        const tag = (document.activeElement?.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable) {
+          return;
+        }
+        const searchInput = document.querySelector<HTMLInputElement>('[data-archive-search]');
+        if (searchInput) {
+          event.preventDefault();
+          searchInput.focus();
+          searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    }
+  }
+
+  initProjectLedger();
+  document.addEventListener('astro:page-load', initProjectLedger);
+</script>
