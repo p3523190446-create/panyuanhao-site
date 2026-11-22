@@ -21,6 +21,7 @@ coverAlt: '《知行回路》麦克纳姆轮全向智能车实车斜视图，可
 gallery:
   - src: '/images/projects/zhixing-loop-control.png'
     caption: '移动端麦轮控制面板：左平移右转向双摇杆、30% 平稳限幅与松手四轮归零锁定'
+repoUrl: 'https://github.com/p3523190446-create/zhixing-loop'
 ---
 
 ## 背景与痛点

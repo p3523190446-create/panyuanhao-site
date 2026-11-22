@@ -15,6 +15,7 @@ stack:
   - 'Selenium WebDriver'
   - '自动化断言'
   - '截图存证'
+repoUrl: 'https://github.com/p3523190446-create/web-testing-selenium'
 ---
 
 ## 背景与痛点

@@ -19,6 +19,7 @@ stack:
 coverImage: '/images/projects/craftpact-desktop.png'
 coverAlt: '《微匠智契》桌面端首页实测截图：展示“哪里不对劲”部件交互示意图、风险告警胶囊与右侧实时契约小票'
 demoUrl: 'https://craftpact-ai-boaxgqj25nd.qoder.website'
+repoUrl: 'https://github.com/p3523190446-create/craftpact-ai'
 ---
 
 ## 背景与痛点

@@ -17,6 +17,7 @@ stack:
   - 'CH32 双模网关'
 coverImage: '/images/projects/hongyu-arch-v4.png'
 coverAlt: '《鸿语知境》V4 三层系统架构图：鸿蒙手持交互层、本地边缘推理与六道门安全层、CH32V307 麦轮执行与五维传感层'
+repoUrl: 'https://github.com/p3523190446-create/hongyu-zhijing'
 ---
 
 ## 背景与痛点

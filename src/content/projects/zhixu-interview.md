@@ -17,6 +17,7 @@ stack:
   - '动画与降动效支持'
 coverImage: '/images/projects/zhixu-desktop.png'
 coverAlt: '《知序》桌面端学习概览截图：展示前端、Python、计算机基础题库入口、正确率与最近 7 次成绩趋势图'
+repoUrl: 'https://github.com/p3523190446-create/zhixu-interview'
 ---
 
 ## 背景与痛点
